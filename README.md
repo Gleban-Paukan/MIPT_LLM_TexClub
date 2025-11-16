@@ -16,25 +16,7 @@ venv\Scripts\activate  # Windows
 pip install -r requirements-simple.txt
 
 # 4. Создать .env файл
-echo "LLM_API_KEY=sk-..." > .env
-echo "LLM_PROVIDER=openai" >> .env
 ```
-
-## 📝 Конфигурация
-
-### Создайте `.env`:
-```
-LLM_API_KEY=sk-your-openai-key
-LLM_PROVIDER=openai
-LLM_MODEL=gpt-4-turbo-preview
-SEARCH_ENABLED=false
-CHUNK_SIZE=512
-CHUNK_OVERLAP=100
-```
-
-**Где взять ключ?**
-- **OpenAI**: https://platform.openai.com/api-keys
-- **Anthropic**: https://console.anthropic.com
 
 ## 📚 Использование
 
