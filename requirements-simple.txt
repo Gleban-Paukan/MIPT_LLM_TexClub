@@ -1,0 +1,9 @@
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic-settings==2.1.0
+python-dotenv==1.0.0
+chromadb==0.4.14
+sentence-transformers==2.2.2
+pdfplumber==0.10.3
+httpx==0.25.1
+pydantic==2.5.0
