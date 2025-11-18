@@ -31,21 +31,18 @@ def split_text_into_chunks(text: str, chunk_size: int = 512, overlap: int = 100)
 
 def _detect_printed_page_number_from_lines(lines: List[str]) -> Optional[int]:
     """
-    Попытаться найти логический номер страницы по строкам текста.
+    Ищем номер страницы в тексте
 
-    Стратегия:
     - рассматриваем последние несколько непустых строк (обычно номер страницы внизу);
     - ищем строку, которая состоит только из числа (например "13").
 
-    Если ничего не нашли, возвращаем None.
     """
-    # Берём только непустые строки
     non_empty = [ln.strip() for ln in lines if ln.strip()]
-    # Смотрим снизу, последние 5 строк
+    # оследние 5 строк
     tail = non_empty[-5:] if len(non_empty) > 5 else non_empty
 
     for ln in reversed(tail):
-        # Чисто число 1–4 знака (10, 23, 101 и т.п.)
+        # число 1–4 знака (10, 23, 101 и т.п.)
         m = re.fullmatch(r"\d{1,4}", ln)
         if m:
             try:
@@ -58,15 +55,15 @@ def _detect_printed_page_number_from_lines(lines: List[str]) -> Optional[int]:
 
 def parse_pdf(pdf_path: str, chunk_size: int = 512, chunk_overlap: int = 100) -> List[Dict[str, Any]]:
     """
-    Прочитать PDF и создать чанки.
+    читает PDF и создает чанки.
 
     Возвращает список словарей вида:
     {
         "id": "file_pageIndex_chunkIndex",
         "text": "содержание",
         "file": "name.pdf",
-        "page": logical_page_number,  # напечатанный номер или индекс страницы
-        "pdf_page_index": физический_индекс_страницы_в_PDF
+        "page": logical_page_number, 
+        "pdf_page_index": 
     }
     """
     chunks_list: List[Dict[str, Any]] = []
@@ -76,19 +73,17 @@ def parse_pdf(pdf_path: str, chunk_size: int = 512, chunk_overlap: int = 100) ->
             file_name = Path(pdf_path).name
 
             for page_index, page in enumerate(pdf.pages, start=1):
-                # Берём текст с сохранённой разметкой, чтобы номера страниц были отдельной строкой
                 text_layout = page.extract_text(layout=True) or ""
                 if not text_layout.strip():
                     continue
 
                 lines = text_layout.split("\n")
 
-                # Пытаемся найти напечатанный номер страницы
                 logical_page = _detect_printed_page_number_from_lines(lines)
                 if logical_page is None:
                     logical_page = page_index  # fallback: физический индекс страницы
 
-                # Убираем последнюю строку, если это номер страницы, чтобы он не попадал в чанки
+                # Убираем последнюю строку
                 if lines and lines[-1].strip().isdigit():
                     lines = lines[:-1]
 
@@ -107,7 +102,7 @@ def parse_pdf(pdf_path: str, chunk_size: int = 512, chunk_overlap: int = 100) ->
                             "file": file_name,
                             # логический номер страницы для отображения в цитатах
                             "page": logical_page,
-                            # физический индекс страницы в PDF (для отладки)
+                            # физический индекс страницы в PDF  --- debug
                             "pdf_page_index": page_index,
                         }
                     )
@@ -150,7 +145,7 @@ def index_pdf_files(pdf_dir: str, db, chunk_size: int = 512, chunk_overlap: int 
 
     logger.info(f"Total chunks: {len(all_chunks)}")
 
-    # Получить эмбеддинги
+    #эмбеддинги
     logger.info("Computing embeddings...")
     embedding_model = get_embedding_model()
     texts = [chunk["text"] for chunk in all_chunks]
@@ -160,7 +155,6 @@ def index_pdf_files(pdf_dir: str, db, chunk_size: int = 512, chunk_overlap: int 
     for chunk, embedding in zip(all_chunks, embeddings):
         chunk["embedding"] = embedding
 
-    # Добавить в БД
     logger.info("Adding chunks to database...")
     db.add_chunks(all_chunks)
 

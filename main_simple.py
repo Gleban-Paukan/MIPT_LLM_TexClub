@@ -41,7 +41,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ============ Schemas ============
 
 class AskRequest(BaseModel):
     question: str
@@ -55,11 +54,10 @@ class Citation(BaseModel):
 
 class AskResponse(BaseModel):
     answer: str
-    source: str  # "lectures" или "error"
+    source: str 
     citations: List[Citation] = []
 
 
-# ============ Endpoints ============
 
 @app.post("/api/ask", response_model=AskResponse)
 async def ask_question(request: AskRequest) -> AskResponse:
@@ -71,7 +69,7 @@ async def ask_question(request: AskRequest) -> AskResponse:
         if not question:
             raise HTTPException(status_code=400, detail="Question is empty")
         
-        # Найти релевантные чанки
+        #релевантные чанки
         logger.info(f"Question: {question}")
         search_results = db.search(question, top_k=settings.RETRIEVAL_TOP_K)
         
@@ -85,8 +83,7 @@ async def ask_question(request: AskRequest) -> AskResponse:
         
         # Проверить похожесть
         max_distance = search_results[0]['distance']
-        # ChromaDB использует distance (меньше = лучше), а не similarity
-        # distance примерно = 1 - cosine_similarity, поэтому порог ~ 0.7 (= 1 - 0.3)
+        # ChromaDB использует distance, а не similarity
         if max_distance > 0.7:
             logger.info(f"Max distance {max_distance} exceeds threshold")
             return AskResponse(
@@ -163,7 +160,6 @@ async def health():
     }
 
 
-# ============ UI ============
 
 @app.get("/")
 async def root():
@@ -197,7 +193,7 @@ async def root():
                 const question = document.getElementById('question').value;
                 if (!question) return;
                 
-                document.getElementById('answer').innerHTML = '⏳ Ищу ответ...';
+                document.getElementById('answer').innerHTML = ' Ищу ответ...';
                 
                 try {
                     const response = await fetch('/api/ask', {
@@ -219,7 +215,7 @@ async def root():
                     
                     document.getElementById('answer').innerHTML = html;
                 } catch (e) {
-                    document.getElementById('answer').innerHTML = `❌ Ошибка: ${e.message}`;
+                    document.getElementById('answer').innerHTML = `Ошибка: ${e.message}`;
                 }
             }
             
@@ -236,7 +232,7 @@ async def root():
 if __name__ == "__main__":
     import uvicorn
     
-    # Открыть браузер через 1 сек
+    # Открыть браузер
     def open_browser():
         import time
         time.sleep(1)

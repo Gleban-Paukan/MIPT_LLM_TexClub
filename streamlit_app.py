@@ -15,7 +15,7 @@ def render_answer_with_latex(text: str):
         if not line:
             continue
 
-        # 1) Строка целиком в формате [ ... ] → считаем это формулой
+        # 1) Строка целиком в формате [ ... ], считаем это формулой
         m = re.fullmatch(r"\[\s*(.+?)\s*\]", line)
         if m:
             latex_body = m.group(1)
@@ -23,7 +23,7 @@ def render_answer_with_latex(text: str):
         else:
             st.markdown(raw_line)
 
-# URL до твоего FastAPI бэкенда
+# FastAPI бэкенд
 API_URL = os.getenv("RAG_API_URL", "http://localhost:8000/api/ask")
 
 st.set_page_config(page_title="RAG по конспектам", page_icon="🎓")
@@ -31,25 +31,23 @@ st.set_page_config(page_title="RAG по конспектам", page_icon="🎓")
 st.title("🎓 Вопросы по конспектам лекций")
 st.caption("RAG + LLM по PDF конспектам с цитированием страниц")
 
-# Инициализация истории диалога
+# история
 if "messages" not in st.session_state:
     st.session_state.messages = []  # список dict: {"role": "user"/"assistant", "content": "..."}
 
-# Отрисовка истории (как в chat templates)
+# отрисовка истории
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
 # Поле ввода снизу экрана
 if prompt := st.chat_input("Задайте вопрос по конспектам (на русском или английском)"):
-    # Сохраняем сообщение пользователя в истории
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    # Рисуем пузырь пользователя
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Ответ ассистента
+    # ответ
     with st.chat_message("assistant"):
         with st.spinner("Ищу ответ в конспектах и вызываю LLM..."):
             try:
@@ -63,12 +61,12 @@ if prompt := st.chat_input("Задайте вопрос по конспекта�
                     st.error(answer)
                 else:
                     data = resp.json()
-                    # Поддерживаем как твой простой ответ, так и вариант из первой версии
+                    
                     answer_text = data.get("answer", "")
                     citations = data.get("citations", [])
                     mode = data.get("source") or data.get("mode", "lectures")
 
-                    # Формируем подпись об источнике
+                    #подпись об источнике
                     if mode == "lectures":
                         footer = "Ответ основан на конспектах лекций."
                     elif mode == "internet":
@@ -76,7 +74,7 @@ if prompt := st.chat_input("Задайте вопрос по конспекта�
                     else:
                         footer = ""
 
-                    # Формируем список цитат
+                    # список цитат
                     citation_lines = []
                     for c in citations:
                         file = (

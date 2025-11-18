@@ -3,7 +3,7 @@
 from sentence_transformers import SentenceTransformer
 from typing import List
 import logging
-import numpy as np  # можно, но не обязательно
+import numpy as np  
 
 logger = logging.getLogger(__name__)
 
@@ -18,13 +18,12 @@ class EmbeddingModel:
 
     def embed(self, texts: List[str]) -> List[List[float]]:
         """Создать эмбеддинги для текстов"""
-        # ВАЖНО: вернуть список списков float
         emb = self.model.encode(
             texts,
-            convert_to_numpy=True,   # ← ключевой момент
-            normalize_embeddings=True  # опционально, но полезно для косинусной близости
+            convert_to_numpy=True,   
+            normalize_embeddings=True  
         )
-        # emb: np.ndarray [N, D] → переводим в list[list[float]]
+        # emb: np.ndarray [N, D]  переводим в list[list[float]]
         return emb.tolist()
 
     def embed_query(self, query: str) -> List[float]:

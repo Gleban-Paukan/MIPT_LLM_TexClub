@@ -20,7 +20,6 @@ class ChromaDB:
         # НОВЫЙ способ инициализации клиента
         self.client = chromadb.PersistentClient(
             path=db_path
-            # Если хочешь, можно добавить tenant/database, но по умолчанию не нужно
         )
 
         self.collection = None
