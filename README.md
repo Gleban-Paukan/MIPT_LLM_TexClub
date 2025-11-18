@@ -105,7 +105,7 @@ response = requests.post(
 print(response.json())
 ```
 
-## 📊 Статистика
+## Статистика
 
 ```bash
 curl http://localhost:8000/api/stats
